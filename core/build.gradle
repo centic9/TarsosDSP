@@ -10,7 +10,7 @@ targetCompatibility = 11
 
 ext.moduleName = 'TarsosDSP.core'
 group 'be.tarsos.dsp'
-version '2.5'
+version '2.5.0.1'
 
 java {
     withJavadocJar()
