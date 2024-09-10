@@ -1,24 +1,24 @@
 /*
-*      _______                       _____   _____ _____  
-*     |__   __|                     |  __ \ / ____|  __ \ 
+*      _______                       _____   _____ _____
+*     |__   __|                     |  __ \ / ____|  __ \
 *        | | __ _ _ __ ___  ___  ___| |  | | (___ | |__) |
-*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/ 
-*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |     
-*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|     
-*                                                         
+*        | |/ _` | '__/ __|/ _ \/ __| |  | |\___ \|  ___/
+*        | | (_| | |  \__ \ (_) \__ \ |__| |____) | |
+*        |_|\__,_|_|  |___/\___/|___/_____/|_____/|_|
+*
 * -------------------------------------------------------------
 *
 * TarsosDSP is developed by Joren Six at IPEM, University Ghent
-*  
+*
 * -------------------------------------------------------------
 *
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*  
+*
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
-* 
+*
 */
 
 
@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * more data. </i></blockquote> If this AudioProcessor chained with other
  * AudioProcessors the others should be able to operate in real time or process
  * the signal on a separate thread.
- * 
+ *
  * @author Joren Six
  */
 public final class AudioPlayer implements AudioProcessor {
@@ -51,21 +51,21 @@ public final class AudioPlayer implements AudioProcessor {
 	 */
 	private SourceDataLine line;
 
-	
+
 	private final AudioFormat format;
 
 	/**
 	 * Creates a new audio player.
-	 * 
+	 *
 	 * @param format
 	 *            The AudioFormat of the buffer.
 	 * @throws LineUnavailableException
 	 *             If no output LineWavelet is available.
 	 */
 	public AudioPlayer(final AudioFormat format)	throws LineUnavailableException {
-		this(format,1024);
+		this(format, AudioSystem.NOT_SPECIFIED);
 	}
-	
+
 	public AudioPlayer(final AudioFormat format, int bufferSize) throws LineUnavailableException {
 		final DataLine.Info info = new DataLine.Info(SourceDataLine.class,format,bufferSize);
 		LOG.info("Opening data line" +info.toString());
@@ -75,18 +75,18 @@ public final class AudioPlayer implements AudioProcessor {
 		line.open(format,bufferSize*2);
 		line.start();
 	}
-	
+
 	public AudioPlayer(final TarsosDSPAudioFormat format, int bufferSize) throws LineUnavailableException {
 		this(JVMAudioInputStream.toAudioFormat(format),bufferSize);
 	}
 	public AudioPlayer(final TarsosDSPAudioFormat format) throws LineUnavailableException {
 		this(JVMAudioInputStream.toAudioFormat(format));
 	}
-	
+
 	public long getMicroSecondPosition(){
 		return line.getMicrosecondPosition();
 	}
-	
+
 	@Override
 	public boolean process(AudioEvent audioEvent) {
 		int byteOverlap = audioEvent.getOverlap() * format.getFrameSize();
@@ -96,7 +96,7 @@ public final class AudioPlayer implements AudioProcessor {
 			byteStepSize = audioEvent.getBufferSize() * format.getFrameSize();
 		}
 		// overlap in samples * nr of bytes / sample = bytes overlap
-		
+
 		/*
 		if(byteStepSize < line.available()){
 			System.out.println(line.available() + " Will not block " + line.getMicrosecondPosition());
@@ -104,17 +104,17 @@ public final class AudioPlayer implements AudioProcessor {
 			System.out.println("Will block " + line.getMicrosecondPosition());
 		}
 		*/
-		
+
 		int bytesWritten = line.write(audioEvent.getByteBuffer(), byteOverlap, byteStepSize);
 		if(bytesWritten != byteStepSize){
 			System.err.println(String.format("Expected to write %d bytes but only wrote %d bytes",byteStepSize,bytesWritten));
 		}
 		return true;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see be.tarsos.util.RealTimeAudioProcessor.AudioProcessor#
 	 * processingFinished()
 	 */
