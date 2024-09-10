@@ -49,7 +49,7 @@ public final class AudioPlayer implements AudioProcessor {
 	/**
 	 * The LineWavelet to send sound to. Is also used to keep everything in sync.
 	 */
-	private SourceDataLine line;
+	private final SourceDataLine line;
 
 
 	private final AudioFormat format;
@@ -68,7 +68,7 @@ public final class AudioPlayer implements AudioProcessor {
 
 	public AudioPlayer(final AudioFormat format, int bufferSize) throws LineUnavailableException {
 		final DataLine.Info info = new DataLine.Info(SourceDataLine.class,format,bufferSize);
-		LOG.info("Opening data line" +info.toString());
+		LOG.info("Opening data line" + info);
 		this.format = format;
 		line = (SourceDataLine) AudioSystem.getLine(info);
 
@@ -107,7 +107,7 @@ public final class AudioPlayer implements AudioProcessor {
 
 		int bytesWritten = line.write(audioEvent.getByteBuffer(), byteOverlap, byteStepSize);
 		if(bytesWritten != byteStepSize){
-			System.err.println(String.format("Expected to write %d bytes but only wrote %d bytes",byteStepSize,bytesWritten));
+			System.err.printf("Expected to write %d bytes but only wrote %d bytes%n",byteStepSize,bytesWritten);
 		}
 		return true;
 	}
